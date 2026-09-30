@@ -140,7 +140,7 @@ cd without_makefile
 
 ## 🔗 Related Repositories
 
-- 📊 **[mbroglio/graph-databases_neo4j_analysis](https://github.com/mbroglio/graph-databases_neo4j_analysis)**: The full benchmark evaluation suite utilizing these automated database instances.
+- 📊 **[mbroglio/neo4j-vs-postgresql-benchmark](https://github.com/mbroglio/neo4j-vs-postgresql-benchmark)**: The full benchmark evaluation suite utilizing these automated database instances.
 
 ---
 
