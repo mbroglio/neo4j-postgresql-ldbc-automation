@@ -1,43 +1,50 @@
-# Setup Automazione con Makefile (Raccomandato)
+# Makefile-Orchestrated Lab Setup (Recommended)
 
-Questa cartella fornisce un orchestratore basato su `Makefile` per generare i dataset LDBC SNB e impostare l'ambiente Docker con **Neo4j** e **PostgreSQL**.
+This folder provides a GNU `Makefile` orchestrator to generate LDBC SNB datasets and manage the Docker environment for **Neo4j** and **PostgreSQL**.
 
-## Installazione Iniziale
-Se è la prima volta che utilizzi l'ambiente su questa macchina, puoi installare tutte le dipendenze necessarie (Docker, git, python3, pandas, psycopg, ecc.) eseguendo:
+---
+
+## 🛠️ Initial Installation
+
+On a fresh Linux machine, install all dependencies (Docker, git, python3, pandas, psycopg, etc.):
 ```bash
 make setup
 ```
 
-## Utilizzo dei Comandi
+---
 
-Tutti i comandi principali del `Makefile` accettano un parametro opzionale **`SF`** (Scale Factor), che definisce la mole dei dati. Se non specificato, il valore di default è `SF=0.1`.
+## 💻 Available Commands
 
-### 1. Generazione dei Dati (Raw CSV)
-Scarica e avvia il container per la generazione del dataset grezzo LDBC. I dati verranno creati in una cartella `out-sf<SF>/`.
+All primary Makefile targets accept an optional **`SF`** (Scale Factor) argument. If omitted, the default is `SF=0.1`.
+
+### 1. Data Generation (Raw CSV)
+Spins up the official `ldbc/datagen-standalone` container to generate raw synthetic graph CSVs into `out-sf<SF>/`:
 ```bash
 make generate SF=0.1
-# oppure, per dataset da ~3GB:
+# Or for a ~1GB graph dataset:
 make generate SF=1
 ```
 
-### 2. Creazione ed Importazione nei DB (Build)
-Elabora i CSV appena generati (ad es. correggendo gli header e formattando le stringhe per PostgreSQL) e carica i dati all'interno dei volumi di Neo4j e PostgreSQL.
+### 2. Database Build & Import
+Processes raw CSVs (patches Neo4j headers, merges Spark chunks for PostgreSQL) and ingests the data into dedicated Docker volumes:
 ```bash
 make build SF=0.1
 ```
 
-### 3. Avvio dei Database
-Avvia i container tramite Docker Compose utilizzando i dati appena importati ed applica automaticamente indici e constraint su Neo4j.
+### 3. Launch Databases
+Starts the containerized services via Docker Compose and automatically applies indexes/constraints:
 ```bash
 make up SF=0.1
 ```
 
-Per fermare i container (i dati nei volumi non verranno persi):
+To stop containers (volume data is preserved):
 ```bash
 make down
 ```
 
-### Scorciatoie e Pulizia
-- **`make reset SF=0.1`**: Esegue in cascata `down`, `build` e `up`. Molto utile quando si vuole passare rapidamente da uno scale factor all'altro o reimportare i database da zero.
-- **`make clean`**: Ferma i container ed elimina i volumi Docker (perdita dei DB), ma mantiene intatti i CSV generati con `make generate`.
-- **`make deep-clean`**: Rimuove i volumi Docker e cancella anche i CSV grezzi generati.
+---
+
+## 🧹 Shortcuts & Housekeeping
+- **`make reset SF=0.1`**: Executes `down`, `build`, and `up` in sequence. Ideal for switching scale factors or rebuilding from scratch.
+- **`make clean`**: Stops containers and deletes Docker database volumes (data loss inside databases), while preserving raw generated CSVs.
+- **`make deep-clean`**: Removes Docker volumes AND deletes the generated `out-sf*/` CSV directories.
